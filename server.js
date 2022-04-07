@@ -1,6 +1,7 @@
 const express = require('express')
 const app = express()
 const Joi = require('joi')
+const func = require('joi/lib/types/func')
 app.use(express.json())
 
 
@@ -27,10 +28,14 @@ app.get('/api/courses/:id', (req, res)=>{
 })
 
 app.post('/api/courses', (req, res)=>{
-    if(!req.body.name || req.body.length < 3){
-        res.status(400).send('Name is required and should be minimum 3 characters')
+
+    const {error} = validateCourse(req.body)
+
+    if(error){
+        res.status(400).send(error.details[0].message)
         return;
     }
+
   const course = {
       id: courses.length + 1, 
       name: req.body.name,
@@ -78,9 +83,13 @@ function validateCourse(course){
     return  Joi.validate(course, schema)
 }
 
-
-
-
+app.delete('/api/courses/:id', (req, res)=>{
+    const course = courses.find(course => course.id === parseInt(req.params.id))
+    if(!course) res.status(404).send("The course with given ID was not found")
+    const index = courses.indexOf(course)
+    courses.splice(index, 1)
+    res.send(course)
+}) 
 
 
 
