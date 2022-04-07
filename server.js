@@ -39,10 +39,49 @@ app.post('/api/courses', (req, res)=>{
   res.send(course)
 })
 
-// app.get('/api/courses/:year/:month', (req, res)=>{
-//     // res.send(req.params)
-//     res.send(req.query)
-// })
+app.put('/api/courses/:id', (req, res)=>{
+
+    const course = courses.find(course => course.id === parseInt(req.params.id))
+    if(!course) res.status(404).send("The course with given ID was not found")
+    
+
+    const {error} = validateCourse(req.body)
+
+    if(error){
+        res.status(400).send(error.details[0].message)
+        return;
+    }
+
+    course.name = req.body.name
+    res.send(course)
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+function validateCourse(course){
+    const schema = {
+        name: Joi.string().min(3).required()
+    }
+    return  Joi.validate(course, schema)
+}
+
+
+
+
+
 
 
 
